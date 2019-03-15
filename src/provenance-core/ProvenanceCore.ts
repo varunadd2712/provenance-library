@@ -3,8 +3,8 @@ import { configureStore } from "./Store";
 import { deepCopy } from "../utils/utils";
 import { Store } from "redux";
 import { NodeID, isStateNode } from "./NodeInterfaces";
-import { ReversibleAction } from "./ProvenanceActions";
-import { applyAction } from "./ApplyActionFunction";
+import { ReversibleAction, ResetAction } from "./ProvenanceActions";
+import { applyAction, applyResetAction } from "./ApplyActionFunction";
 import { toNode } from "./GotoNodeActions";
 
 export function Provenance<T>(application: Store<T>) {
@@ -14,9 +14,15 @@ export function Provenance<T>(application: Store<T>) {
     graph: () => deepCopy(graph.getState()),
     apply: <D, U>(
       action: ReversibleAction<D, U>,
-      skipFirstDoFunctionCall: boolean = false
+      skipFirstDoFunctionCall: boolean = false,
     ) => {
       applyAction(graph, application, action, skipFirstDoFunctionCall);
+    },
+    applyReset: (
+      action: ResetAction,
+      state:any
+    ) => {
+      applyResetAction(graph, application, action, state)
     },
     goToNode: (id: NodeID) => toNode(graph, application, id),
     goBackOneStep: () => {
@@ -25,7 +31,7 @@ export function Provenance<T>(application: Store<T>) {
         toNode(graph, application, current.parent);
       }
     },
-    goBackNSteps: (n: number) => {
+    goBackNSteps: (n: number, withState:boolean = false) => {
       while (n != 0) {
         const current = graph.getState().current;
         if (isStateNode(current)) {

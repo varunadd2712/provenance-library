@@ -18,6 +18,11 @@ export interface ReversibleAction<D, U> {
   readonly undoAction: UndoAction<U>;
 }
 
+export interface ResetAction {
+  readonly type: string;
+  readonly doAction: any;
+}
+
 export function ReversibleActionCreator<D, U>(
   type: string,
   doArgs: D,
@@ -32,6 +37,17 @@ export function ReversibleActionCreator<D, U>(
     undoAction: {
       type: `UNDO_${type}`,
       args: undoArgs
+    }
+  };
+}
+
+export function ResetActionCreator(
+  type: string
+): ResetAction {
+  return {
+    type: type,
+    doAction: {
+      type: `DO_${type}`
     }
   };
 }
