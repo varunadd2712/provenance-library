@@ -1,4 +1,4 @@
-import { ReversibleAction, ResetAction } from "./ProvenanceActions";
+import { ReversibleAction } from "./ProvenanceActions";
 
 export type NodeID = string;
 
@@ -26,14 +26,7 @@ export interface StateNode extends RootNode {
   actionResult: unknown;
 }
 
-export interface ResetNode extends RootNode {
-  parent: NodeID;
-  state: unknown;
-  action: ResetAction;
-  actionResult: unknown;
-}
-
-export type ProvenanceNode = RootNode | StateNode | ResetNode;
+export type ProvenanceNode = RootNode | StateNode;
 
 export type Nodes = { [key: string]: ProvenanceNode };
 

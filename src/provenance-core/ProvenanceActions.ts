@@ -7,6 +7,7 @@ export interface DoAction<T> extends Action {
   args: T;
 }
 
+
 export interface UndoAction<T> extends Action {
   readonly type: string;
   args: T;
@@ -18,9 +19,9 @@ export interface ReversibleAction<D, U> {
   readonly undoAction: UndoAction<U>;
 }
 
-export interface ResetAction {
+export interface ResetAction<T> extends Action {
   readonly type: string;
-  readonly doAction: any;
+  args: T;
 }
 
 export function ReversibleActionCreator<D, U>(
@@ -41,13 +42,12 @@ export function ReversibleActionCreator<D, U>(
   };
 }
 
-export function ResetActionCreator(
-  type: string
-): ResetAction {
+export function ResetActionCreator<T>(
+  type: string,
+  doArgs: T
+): ResetAction<T> {
   return {
     type: type,
-    doAction: {
-      type: `DO_${type}`
-    }
+    args: doArgs
   };
 }

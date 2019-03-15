@@ -1,7 +1,7 @@
 import { Store, AnyAction } from "redux";
 import { ProvenanceGraph } from "./ProvenanceGraph";
-import { ReversibleAction, ResetAction } from "./ProvenanceActions";
-import { NodeID, StateNode, ResetNode } from "./NodeInterfaces";
+import { ReversibleAction, ResetAction, ResetActionCreator } from "./ProvenanceActions";
+import { NodeID, StateNode } from "./NodeInterfaces";
 import { generateUUID, generateTimeStamp } from "../utils/utils";
 import {
   createAddNodeAction,
@@ -24,6 +24,7 @@ export function applyAction<T, D, U>(
   ): StateNode => ({
     id: generateUUID(),
     label: action.type,
+
     metadata: {
       createdOn: generateTimeStamp()
     },
@@ -38,6 +39,8 @@ export function applyAction<T, D, U>(
   let newNode: StateNode;
 
   const currentNode = graph.getState().current;
+  console.log("logging fun");
+  console.log(action.doAction);
   if (!skipFirstDoFunctionCall) application.dispatch(action.doAction);
   newNode = createNewStateNode(currentNode.id, null);
   console.log("new node");
@@ -55,39 +58,15 @@ export function applyAction<T, D, U>(
 export function applyResetAction<T, D, U>(
   graph: Store<ProvenanceGraph, AnyAction>,
   application: Store<T>,
-  action: ResetAction,
-  state: any) {
+  inputString: string) {
 
-  const createNewResetNode = (
-    parent: NodeID,
-    actionResult: unknown
-  ): ResetNode => ({
-    id: generateUUID(),
-    label: action.type,
-    metadata: {
-      createdOn: generateTimeStamp()
-    },
-    action: action,
-    actionResult: actionResult,
-    parent: parent,
-    children: [],
-    artifacts: [],
-    state: application.getState()
-  });
+  let action = {type : inputString}
 
-  let newNode: ResetNode;
+  console.log(action);
 
-  const currentNode = graph.getState().current;
+  const createResetAction = (toSet: any) : ResetAction<any> => {
+    return ResetActionCreator(inputString, toSet);
+  };
 
-  application.dispatch(action.doAction(state));
-  newNode = createNewResetNode(currentNode.id, null);
-
-  // * Add to nodes list
-  graph.dispatch(createAddNodeAction(newNode));
-  // * Add as child to current node
-  graph.dispatch(createAddChildToCurrentAction(newNode.id));
-  // * Update the node in nodes list
-  graph.dispatch(createUpdateNewlyAddedNodeAction(graph.getState().current));
-  // * Change Current node
-  graph.dispatch(createChangeCurrentAction(newNode));
+  application.dispatch(createResetAction(application.getState()));
 }

@@ -27,6 +27,12 @@ const act = createReversibleAddAction(3);
 console.log(
   "#####################################################################################"
 );
+console.log("Before reset");
+console.log(app.getState());
+
+provenance.applyReset("RESET_NOW");
+console.log("After reset");
+
 console.log(app.getState());
 
 provenance.apply(act);

@@ -6,7 +6,8 @@ export enum CalcActionEnum {
   UNDO_SUB = ADD,
   SUB = "SUB",
   UNDO_ADD = SUB,
-  DO_SUB = SUB
+  DO_SUB = SUB,
+  RESET_NOW = "RESET_NOW"
 }
 
 interface CalcAction {
@@ -30,10 +31,19 @@ const calcReducer = (count: number = 0, action: CalcAction) => {
       return count + action.args;
     case CalcActionEnum.SUB:
       return count - action.args;
+    case CalcActionEnum.RESET_NOW: {
+        resettingNow(count);
+        return -1;
+    }
     default:
       return count;
   }
 };
+
+function resettingNow(count : number) {
+  console.log("testing this");
+  console.log(count);
+}
 export const Calculator = () =>
   createStore(
     combineReducers({
