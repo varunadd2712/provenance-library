@@ -47,7 +47,7 @@ export function applyAction<T, D, U>(
   console.log(newNode);
   // * Add to nodes list
   graph.dispatch(createAddNodeAction(newNode));
-  // * Add as child to current node
+  // * Add as child to current nodeididid
   graph.dispatch(createAddChildToCurrentAction(newNode.id));
   // * Update the node in nodes list
   graph.dispatch(createUpdateNewlyAddedNodeAction(graph.getState().current));
@@ -60,13 +60,45 @@ export function applyResetAction<T, D, U>(
   application: Store<T>,
   inputString: string) {
 
-  let action = {type : inputString}
-
-  console.log(action);
-
   const createResetAction = (toSet: any) : ResetAction<any> => {
     return ResetActionCreator(inputString, toSet);
   };
 
-  application.dispatch(createResetAction(application.getState()));
+  let action = createResetAction(application.getState());
+
+  const createNewStateNode = (
+    parent: NodeID,
+    actionResult: unknown
+  ): StateNode => ({
+    id: generateUUID(),
+    label: action.type,
+
+    metadata: {
+      createdOn: generateTimeStamp()
+    },
+    action: action,
+    actionResult: actionResult,
+    parent: parent,
+    children: [],
+    artifacts: [],
+    state: application.getState()
+  });
+
+  let newNode: StateNode;
+
+  const currentNode = graph.getState().current;
+
+  newNode = createNewStateNode(currentNode.id, null);
+
+  application.dispatch(action.doAction);
+
+  // * Add to nodes list
+  graph.dispatch(createAddNodeAction(newNode));
+  // * Add as child to current nodeididid
+  graph.dispatch(createAddChildToCurrentAction(newNode.id));
+  // * Update the node in nodes list
+  graph.dispatch(createUpdateNewlyAddedNodeAction(graph.getState().current));
+  // * Change Current node
+  graph.dispatch(createChangeCurrentAction(newNode));
+
 }

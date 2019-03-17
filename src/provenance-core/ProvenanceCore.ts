@@ -5,9 +5,9 @@ import { Store } from "redux";
 import { NodeID, isStateNode } from "./NodeInterfaces";
 import { ReversibleAction } from "./ProvenanceActions";
 import { applyAction, applyResetAction } from "./ApplyActionFunction";
-import { toNode } from "./GotoNodeActions";
+import { toNode, toNodeWithState} from "./GotoNodeActions";
 
-export function Provenance<T>(application: Store<T>) {
+export function Provenance<T>(application: Store<T>, resetFunction: string = null) {
   const graph = configureStore(createNewGraph());
 
   return {
@@ -18,16 +18,21 @@ export function Provenance<T>(application: Store<T>) {
     ) => {
       applyAction(graph, application, action, skipFirstDoFunctionCall);
     },
-    applyReset: (
-      inputString: string,
-    ) => {
-      applyResetAction(graph, application, inputString)
+    applyReset: () => {
+      applyResetAction(graph, application, resetFunction)
     },
     goToNode: (id: NodeID) => toNode(graph, application, id),
+    goToNodeWithState: (id: NodeID) => toNodeWithState(graph, application, id, resetFunction),
     goBackOneStep: () => {
       const current = graph.getState().current;
       if (isStateNode(current)) {
         toNode(graph, application, current.parent);
+      }
+    },
+    goBackOneStepWithState: () => {
+      const current = graph.getState().current;
+      if (isStateNode(current)) {
+        toNodeWithState(graph, application, current.parent, resetFunction);
       }
     },
     goBackNSteps: (n: number) => {
@@ -35,6 +40,17 @@ export function Provenance<T>(application: Store<T>) {
         const current = graph.getState().current;
         if (isStateNode(current)) {
           toNode(graph, application, current.parent);
+          --n;
+        } else {
+          break;
+        }
+      }
+    },
+    goBackNStepsWithState: (n: number) => {
+      while (n != 0) {
+        const current = graph.getState().current;
+        if (isStateNode(current)) {
+          toNodeWithState(graph, application, current.parent, resetFunction);
           --n;
         } else {
           break;

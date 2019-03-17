@@ -14,7 +14,7 @@ console.clear();
 
 const app = Calculator();
 
-const provenance = Provenance(app);
+const provenance = Provenance(app, "RESET_NOW");
 
 const createReversibleAddAction = (
   toAdd: number
@@ -30,7 +30,7 @@ console.log(
 console.log("Before reset");
 console.log(app.getState());
 
-provenance.applyReset("RESET_NOW");
+provenance.applyReset();
 console.log("After reset");
 
 console.log(app.getState());
